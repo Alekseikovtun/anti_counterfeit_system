@@ -56,3 +56,63 @@ class DB_Connector:
                 conn.exec_driver_sql(cmd_safe)
             except Exception as ex:
                 print(f'Insert error: {str(ex)=}')
+        
+    def get_all_data_from_test_table(self):
+        engine = self.established_connection()
+        if engine is None:
+            print("No DB connection, abort fetch")
+            return []
+        
+        sql = "SELECT * FROM Test_table;"
+        cmd = sql.strip()
+        if not cmd:
+            return []
+        cmd_safe = cmd.replace('%', '%%')
+
+        with engine.begin() as conn:
+            try:
+                result = conn.exec_driver_sql(cmd_safe)
+                rows = result.fetchall()
+                return rows
+            except Exception as ex:
+                print(f'Fetch error: {str(ex)=}')
+                return []
+        
+    def get_last_data_from_test_table(self):
+        engine = self.established_connection()
+        if engine is None:
+            print("No DB connection, abort fetch")
+            return None
+        
+        sql = "SELECT * FROM Test_table ORDER BY DT DESC LIMIT 1;"
+        cmd = sql.strip()
+        if not cmd:
+            return None
+        cmd_safe = cmd.replace('%', '%%')
+
+        with engine.begin() as conn:
+            try:
+                result = conn.exec_driver_sql(cmd_safe)
+                row = result.fetchone()
+                return row
+            except Exception as ex:
+                print(f'Fetch error: {str(ex)=}')
+                return None
+    
+    def delete_all_data_from_test_table(self):
+        engine = self.established_connection()
+        if engine is None:
+            print("No DB connection, abort delete")
+            return
+        
+        sql = "DELETE FROM Test_table;"
+        cmd = sql.strip()
+        if not cmd:
+            return
+        cmd_safe = cmd.replace('%', '%%')
+
+        with engine.begin() as conn:
+            try:
+                conn.exec_driver_sql(cmd_safe)
+            except Exception as ex:
+                print(f'Delete error: {str(ex)=}')
