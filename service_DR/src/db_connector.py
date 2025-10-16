@@ -11,13 +11,12 @@ class DB_Connector:
     def established_connection(self):
         if self.engine is None:
             try:
-                engine = self.connection()
-                if engine is None:
+                self.engine = self.connection()
+                if self.engine is None:
                     raise RuntimeError("Failed to create engine.")
-                self.engine = engine
             except Exception as ex:
                 raise RuntimeError(f"Database connection error: {str(ex)}")
-        return self.engine
+        # return self.engine
 
     def connection(self):
         load_dotenv("./../env")
@@ -37,9 +36,7 @@ class DB_Connector:
         return self.engine
 
     def insert_data_to_test_table(self):
-        engine = self.established_connection()
-        if engine is None:
-            raise RuntimeError("No DB connection, abort insert")
+        self.established_connection()
         
         sql = "INSERT INTO Test_table (DT) VALUES (DATE_FORMAT(SYSDATE(), '%Y-%m-%d %H:%i:%s'));"
         cmd = sql.strip()
@@ -47,16 +44,15 @@ class DB_Connector:
             return
         cmd_safe = cmd.replace('%', '%%')
 
-        with engine.begin() as conn:
+        with self.engine.begin() as conn:
             try:
                 conn.exec_driver_sql(cmd_safe)
+                # Try to call func get_last_data_from_test_table() here, not in main.py
             except Exception as ex:
                 raise RuntimeError(f'Insert error: {str(ex)=}')
         
     def get_all_data_from_test_table(self):
-        engine = self.established_connection()
-        if engine is None:
-            raise RuntimeError("No DB connection, abort getting all data")
+        self.established_connection()
         
         sql = "SELECT * FROM Test_table;"
         cmd = sql.strip()
@@ -64,7 +60,7 @@ class DB_Connector:
             return []
         cmd_safe = cmd.replace('%', '%%')
 
-        with engine.begin() as conn:
+        with self.engine.begin() as conn:
             try:
                 result = conn.exec_driver_sql(cmd_safe)
                 rows = result.fetchall()
@@ -73,9 +69,7 @@ class DB_Connector:
                 raise RuntimeError(f'Getting all data error: {str(ex)=}')
         
     def get_last_data_from_test_table(self):
-        engine = self.established_connection()
-        if engine is None:
-            raise RuntimeError("No DB connection, abort getting last data")
+        self.established_connection()
         
         sql = "SELECT * FROM Test_table ORDER BY DT DESC LIMIT 1;"
         cmd = sql.strip()
@@ -83,7 +77,7 @@ class DB_Connector:
             return None
         cmd_safe = cmd.replace('%', '%%')
 
-        with engine.begin() as conn:
+        with self.engine.begin() as conn:
             try:
                 result = conn.exec_driver_sql(cmd_safe)
                 row = result.fetchone()
@@ -92,9 +86,7 @@ class DB_Connector:
                 raise RuntimeError(f'Getting last data error: {str(ex)=}')
     
     def delete_all_data_from_test_table(self):
-        engine = self.established_connection()
-        if engine is None:
-            raise RuntimeError("No DB connection, abort delete")
+        self.established_connection()
         
         sql = "DELETE FROM Test_table;"
         cmd = sql.strip()
@@ -102,7 +94,7 @@ class DB_Connector:
             return
         cmd_safe = cmd.replace('%', '%%')
 
-        with engine.begin() as conn:
+        with self.engine.begin() as conn:
             try:
                 conn.exec_driver_sql(cmd_safe)
             except Exception as ex:

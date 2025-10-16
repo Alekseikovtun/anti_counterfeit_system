@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from db_connector import DB_Connector
 
 app = Flask(__name__)
@@ -21,7 +21,7 @@ def insert():
     try:
         connector.insert_data_to_test_table()
         last = connector.get_last_data_from_test_table()
-        return jsonify({"inserted": row_to_dict(last)})
+        return jsonify({"result": row_to_dict(last)})
     except Exception as ex:
         return jsonify({"error": str(ex)}), 500
 
@@ -30,7 +30,7 @@ def get_all():
     try:
         rows = connector.get_all_data_from_test_table()
         result = [row_to_dict(row) for row in rows]
-        return jsonify({"rows": result})
+        return jsonify({"result": result})
     except Exception as ex:
         return jsonify({"error": str(ex)}), 500
 
@@ -38,7 +38,7 @@ def get_all():
 def get_last():
     try:
         row = connector.get_last_data_from_test_table()
-        return jsonify({"last": row_to_dict(row)})
+        return jsonify({"result": row_to_dict(row)})
     except Exception as ex:
         return jsonify({"error": str(ex)}), 500
 
@@ -46,7 +46,7 @@ def get_last():
 def delete_all():
     try:
         connector.delete_all_data_from_test_table()
-        return jsonify({"status": "deleted"})
+        return jsonify({"result": "deleted"})
     except Exception as ex:
         return jsonify({"error": str(ex)}), 500
 

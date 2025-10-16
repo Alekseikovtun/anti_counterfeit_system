@@ -15,7 +15,7 @@ def test_insert():
     assert resp.status_code == 200
     
     data = resp.get_json()
-    assert data["inserted"] is not None
+    assert data["result"] is not None
 
 def test_get_last():
     client = testing_app.test_client()
@@ -24,7 +24,7 @@ def test_get_last():
     assert resp.status_code == 200
     
     last = resp.get_json()
-    assert last["last"] is not None
+    assert last["result"] is not None
 
 def test_get_all():
     client = testing_app.test_client()
@@ -32,7 +32,7 @@ def test_get_all():
     resp = client.get("/all")
     assert resp.status_code == 200
     
-    rows = resp.get_json().get("rows", [])
+    rows = resp.get_json().get("result", [])
     assert isinstance(rows, list)
     assert len(rows) >= 1
 
@@ -44,7 +44,7 @@ def test_delete_all():
     
     resp = client.get("/last")
     last = resp.get_json()
-    assert last["last"] is None
+    assert last["result"] is None
 
 def test_wrong_adress():
     client = testing_app.test_client()
