@@ -13,12 +13,10 @@ class DB_Connector:
             try:
                 engine = self.connection()
                 if engine is None:
-                    print("Failed to create engine.")
-                    return None
+                    raise RuntimeError("Failed to create engine.")
                 self.engine = engine
             except Exception as ex:
-                print(f'Connection error: {str(ex)=}')
-                return None
+                raise RuntimeError(f"Database connection error: {str(ex)}")
         return self.engine
 
     def connection(self):
@@ -35,15 +33,13 @@ class DB_Connector:
         try:
             self.engine = create_engine(db_connection)
         except Exception as ex:
-            print(f'Engine creation error: {str(ex)=}')
-            return None
+            raise RuntimeError(f'Engine creation error: {str(ex)=}')
         return self.engine
 
     def insert_data_to_test_table(self):
         engine = self.established_connection()
         if engine is None:
-            print("No DB connection, abort insert")
-            return
+            raise RuntimeError("No DB connection, abort insert")
         
         sql = "INSERT INTO Test_table (DT) VALUES (DATE_FORMAT(SYSDATE(), '%Y-%m-%d %H:%i:%s'));"
         cmd = sql.strip()
@@ -55,13 +51,12 @@ class DB_Connector:
             try:
                 conn.exec_driver_sql(cmd_safe)
             except Exception as ex:
-                print(f'Insert error: {str(ex)=}')
+                raise RuntimeError(f'Insert error: {str(ex)=}')
         
     def get_all_data_from_test_table(self):
         engine = self.established_connection()
         if engine is None:
-            print("No DB connection, abort fetch")
-            return []
+            raise RuntimeError("No DB connection, abort getting all data")
         
         sql = "SELECT * FROM Test_table;"
         cmd = sql.strip()
@@ -75,14 +70,12 @@ class DB_Connector:
                 rows = result.fetchall()
                 return rows
             except Exception as ex:
-                print(f'Fetch error: {str(ex)=}')
-                return []
+                raise RuntimeError(f'Getting all data error: {str(ex)=}')
         
     def get_last_data_from_test_table(self):
         engine = self.established_connection()
         if engine is None:
-            print("No DB connection, abort fetch")
-            return None
+            raise RuntimeError("No DB connection, abort getting last data")
         
         sql = "SELECT * FROM Test_table ORDER BY DT DESC LIMIT 1;"
         cmd = sql.strip()
@@ -96,14 +89,12 @@ class DB_Connector:
                 row = result.fetchone()
                 return row
             except Exception as ex:
-                print(f'Fetch error: {str(ex)=}')
-                return None
+                raise RuntimeError(f'Getting last data error: {str(ex)=}')
     
     def delete_all_data_from_test_table(self):
         engine = self.established_connection()
         if engine is None:
-            print("No DB connection, abort delete")
-            return
+            raise RuntimeError("No DB connection, abort delete")
         
         sql = "DELETE FROM Test_table;"
         cmd = sql.strip()
@@ -115,4 +106,4 @@ class DB_Connector:
             try:
                 conn.exec_driver_sql(cmd_safe)
             except Exception as ex:
-                print(f'Delete error: {str(ex)=}')
+                raise RuntimeError(f'Delete error: {str(ex)=}')

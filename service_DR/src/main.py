@@ -20,7 +20,8 @@ def status_check():
 def insert():
     try:
         connector.insert_data_to_test_table()
-        return jsonify({"status": "inserted"})
+        last = connector.get_last_data_from_test_table()
+        return jsonify({"inserted": row_to_dict(last)})
     except Exception as ex:
         return jsonify({"error": str(ex)}), 500
 

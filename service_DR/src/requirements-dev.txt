@@ -1,5 +1,5 @@
--r src/requirements.txt
+-r ./requirements.txt
 
 mypy==1.18.2
-pytest
-requests
+pytest==8.4.2
+requests==2.32.5
