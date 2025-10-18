@@ -1,8 +1,9 @@
 import os
-# import sqlalchemy as sqa
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from typing import List
 
 class DB_Connector:
     def __init__(self):
@@ -11,14 +12,13 @@ class DB_Connector:
     def established_connection(self):
         if self.engine is None:
             try:
-                self.engine = self.connection()
+                self.engine = self.setup_engine()
                 if self.engine is None:
                     raise RuntimeError("Failed to create engine.")
             except Exception as ex:
                 raise RuntimeError(f"Database connection error: {str(ex)}")
-        # return self.engine
 
-    def connection(self):
+    def setup_engine(self) -> Engine:
         load_dotenv("./../env")
 
         DB_USER = os.getenv("DB_USER", "user")
@@ -38,60 +38,57 @@ class DB_Connector:
     def insert_data_to_test_table(self):
         self.established_connection()
         
-        sql = "INSERT INTO Test_table (DT) VALUES (DATE_FORMAT(SYSDATE(), '%Y-%m-%d %H:%i:%s'));"
-        cmd = sql.strip()
-        if not cmd:
-            return
+        query = "INSERT INTO Test_table (DT) VALUES (DATE_FORMAT(SYSDATE(), '%Y-%m-%d %H:%i:%s'));"
+        cmd = query.strip()
         cmd_safe = cmd.replace('%', '%%')
 
         with self.engine.begin() as conn:
             try:
                 conn.exec_driver_sql(cmd_safe)
-                # Try to call func get_last_data_from_test_table() here, not in main.py
             except Exception as ex:
                 raise RuntimeError(f'Insert error: {str(ex)=}')
         
-    def get_all_data_from_test_table(self):
+    def get_all_data_from_test_table(self) -> List[str]:
+        result: List[str] = []
         self.established_connection()
         
-        sql = "SELECT * FROM Test_table;"
-        cmd = sql.strip()
-        if not cmd:
-            return []
-        cmd_safe = cmd.replace('%', '%%')
+        query = "SELECT DT FROM Test_table;"
 
-        with self.engine.begin() as conn:
-            try:
-                result = conn.exec_driver_sql(cmd_safe)
-                rows = result.fetchall()
-                return rows
-            except Exception as ex:
-                raise RuntimeError(f'Getting all data error: {str(ex)=}')
+        try:
+            with self.engine.begin() as conn:
+                cursor = conn.exec_driver_sql(query)
+                response = cursor.fetchall()
+                if response is None:
+                    return []
+                for row in response:
+                    result.append(row[0])
+        except Exception as ex:
+            raise RuntimeError(f'Getting all data error: {str(ex)=}')
         
-    def get_last_data_from_test_table(self):
+        return result
+        
+    def get_last_data_from_test_table(self) -> List[str]:
+        result: List[str] = []
         self.established_connection()
         
-        sql = "SELECT * FROM Test_table ORDER BY DT DESC LIMIT 1;"
-        cmd = sql.strip()
-        if not cmd:
-            return None
-        cmd_safe = cmd.replace('%', '%%')
+        query = "SELECT DT FROM Test_table ORDER BY DT DESC LIMIT 1;"
 
-        with self.engine.begin() as conn:
-            try:
-                result = conn.exec_driver_sql(cmd_safe)
-                row = result.fetchone()
-                return row
-            except Exception as ex:
-                raise RuntimeError(f'Getting last data error: {str(ex)=}')
+        try:
+            with self.engine.begin() as conn:
+                cursor = conn.exec_driver_sql(query)
+                response = cursor.fetchone()
+                if response is None:
+                    return []
+                result.append(response[0])
+        except Exception as ex:
+            raise RuntimeError(f'Getting last data error: {str(ex)=}')
+        return result
     
     def delete_all_data_from_test_table(self):
         self.established_connection()
         
-        sql = "DELETE FROM Test_table;"
-        cmd = sql.strip()
-        if not cmd:
-            return
+        query = "DELETE FROM Test_table;"
+        cmd = query.strip()
         cmd_safe = cmd.replace('%', '%%')
 
         with self.engine.begin() as conn:

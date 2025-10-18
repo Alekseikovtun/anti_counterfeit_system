@@ -21,7 +21,7 @@ def insert():
     try:
         connector.insert_data_to_test_table()
         last = connector.get_last_data_from_test_table()
-        return jsonify({"result": row_to_dict(last)})
+        return jsonify({"result": last})
     except Exception as ex:
         return jsonify({"error": str(ex)}), 500
 
@@ -30,15 +30,15 @@ def get_all():
     try:
         rows = connector.get_all_data_from_test_table()
         result = [row_to_dict(row) for row in rows]
-        return jsonify({"result": result})
+        return jsonify({"result": row_to_dict(result)})
     except Exception as ex:
         return jsonify({"error": str(ex)}), 500
 
 @app.route("/last", methods=["GET"])
 def get_last():
     try:
-        row = connector.get_last_data_from_test_table()
-        return jsonify({"result": row_to_dict(row)})
+        result = connector.get_last_data_from_test_table()
+        return jsonify({"result": row_to_dict(result)})
     except Exception as ex:
         return jsonify({"error": str(ex)}), 500
 

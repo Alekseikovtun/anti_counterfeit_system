@@ -1,6 +1,6 @@
-import pytest
 import os
 import sys
+import ast
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
 from main import app, connector
@@ -32,9 +32,8 @@ def test_get_all():
     resp = client.get("/all")
     assert resp.status_code == 200
     
-    rows = resp.get_json().get("result", [])
-    assert isinstance(rows, list)
-    assert len(rows) >= 1
+    rows = resp.get_json().get("result", {}).get("Value", "[]")
+    assert len(ast.literal_eval(rows)) >= 1
 
 def test_delete_all():
     client = testing_app.test_client()
@@ -44,7 +43,7 @@ def test_delete_all():
     
     resp = client.get("/last")
     last = resp.get_json()
-    assert last["result"] is None
+    assert last == {"result": {"Value": "[]"}}
 
 def test_wrong_adress():
     client = testing_app.test_client()
