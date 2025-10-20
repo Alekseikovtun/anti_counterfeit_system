@@ -1,3 +1,6 @@
 service_DR/.venv/*
 service_DR/.env
+service_DR/.pytest_cache
+service_DR/*/__pycache__
+service_DR/*/__pycache__/*.pyc
 artifacts/*
