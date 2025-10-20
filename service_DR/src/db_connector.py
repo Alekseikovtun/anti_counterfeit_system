@@ -58,10 +58,9 @@ class DB_Connector:
             with self.engine.begin() as conn:
                 cursor = conn.exec_driver_sql(query)
                 response = cursor.fetchall()
-                if response is None:
-                    return []
-                for row in response:
-                    result.append(row[0])
+                if response is not None:
+                    for row in response:
+                        result.append(row[0])
         except Exception as ex:
             raise RuntimeError(f'Getting all data error: {str(ex)=}')
         
@@ -77,22 +76,20 @@ class DB_Connector:
             with self.engine.begin() as conn:
                 cursor = conn.exec_driver_sql(query)
                 response = cursor.fetchone()
-                if response is None:
-                    return []
-                result.append(response[0])
+                if response is not None:
+                    result.append(response[0])
         except Exception as ex:
             raise RuntimeError(f'Getting last data error: {str(ex)=}')
+        
         return result
     
     def delete_all_data_from_test_table(self):
         self.established_connection()
         
         query = "DELETE FROM Test_table;"
-        cmd = query.strip()
-        cmd_safe = cmd.replace('%', '%%')
 
         with self.engine.begin() as conn:
             try:
-                conn.exec_driver_sql(cmd_safe)
+                conn.exec_driver_sql(query)
             except Exception as ex:
                 raise RuntimeError(f'Delete error: {str(ex)=}')
