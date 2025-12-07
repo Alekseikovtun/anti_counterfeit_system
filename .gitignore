@@ -4,3 +4,5 @@ service_DR/.pytest_cache
 service_DR/*/__pycache__
 service_DR/*/__pycache__/*.pyc
 artifacts/*
+
+service_DSS/.venv/*
